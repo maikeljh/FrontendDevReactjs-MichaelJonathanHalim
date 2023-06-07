@@ -64,7 +64,7 @@ const Main = () => {
     try {
       let tempCategories = new Set();
       const updatedRestaurants = await Promise.all(
-        rest.map(async (el) => {
+        rest.map(async (el, idx) => {
           // Set dummy price
           if (el.rating === 5) {
             el.price = 3;
@@ -75,7 +75,7 @@ const Main = () => {
           }
 
           // Set dummy open
-          if (Math.random() > 0.5) {
+          if (idx % 3 !== 0) {
             el.open = true;
           } else {
             el.open = false;

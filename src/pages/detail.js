@@ -20,8 +20,8 @@ const RestaurantDetail = () => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/detail/${id}`)
       .then((response) => {
-        setIsLoading(false);
         setDetail(response.data.restaurant);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -71,7 +71,7 @@ const RestaurantDetail = () => {
             />
           </span>
           <h3 className="text-2xl mx-auto font-semibold mt-2">Reviews</h3>
-          {loadMore || detail?.customerReviews.length <= 3 ? (
+          {loadMore || (detail && detail?.customerReviews.length <= 3) ? (
             <div className="flex flex-col gap-4 max-w-2xl w-full">
               {detail?.customerReviews.map((el, idx) => (
                 <div

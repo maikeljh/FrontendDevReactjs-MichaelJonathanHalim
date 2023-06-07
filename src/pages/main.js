@@ -4,14 +4,16 @@ import Card from "../components/card";
 import Header from "../components/header";
 
 const Main = () => {
-  const [restaurants, setRestaurants] = useState([]);
-  const [showedRestaurants, setShowedRestaurants] = useState([]);
-  const [loadMore, setLoadMore] = useState(false);
-  const [price, setPrice] = useState(0);
-  const [open, setOpen] = useState(null);
-  const [category, setCategory] = useState("");
-  const [categories, setCategories] = useState(new Set());
+  /* States */
+  const [restaurants, setRestaurants] = useState([]); // List of restaurants
+  const [showedRestaurants, setShowedRestaurants] = useState([]); // List of filtered restaurants
+  const [loadMore, setLoadMore] = useState(false); // Boolean to load more or not
+  const [price, setPrice] = useState(0); // Price filter
+  const [open, setOpen] = useState(null); // Open Now filter
+  const [category, setCategory] = useState(""); // Category filter
+  const [categories, setCategories] = useState(new Set()); // List of available categories
 
+  /* Content */
   const headerContent = {
     title: "Restaurants",
     content: `The ultimate guide to exploring and discovering the finest restaurants 
@@ -19,6 +21,8 @@ const Main = () => {
     is designed to make your dining experiences exceptional.`,
   };
 
+  /* Functions */
+  // To reset filter
   const resetFilter = () => {
     setPrice(0);
     setOpen(false);
@@ -26,111 +30,146 @@ const Main = () => {
     setShowedRestaurants(restaurants);
   };
 
+  // To filter by price or open now
+  const filterByPriceOrOpen = (filteredRestaurants) => {
+    if (filteredRestaurants.length > 0 && price !== 0) {
+      if (price === "1") {
+        filteredRestaurants = filteredRestaurants.filter((restaurant) => {
+          return restaurant.price === 1;
+        });
+      } else if (price === "2") {
+        filteredRestaurants = filteredRestaurants.filter((restaurant) => {
+          return restaurant.price === 2;
+        });
+      } else if (price === "3") {
+        filteredRestaurants = filteredRestaurants.filter((restaurant) => {
+          return restaurant.price === 3;
+        });
+      }
+    }
+
+    if (open) {
+      if (filteredRestaurants.length > 0) {
+        filteredRestaurants = filteredRestaurants.filter((restaurant) => {
+          return restaurant.open;
+        });
+      }
+    }
+
+    return filteredRestaurants;
+  };
+
+  // To set restaurant details
+  const setRestaurantDetails = async (rest, saveCategory = false) => {
+    try {
+      let tempCategories = new Set();
+      const updatedRestaurants = await Promise.all(
+        rest.map(async (el) => {
+          // Set dummy price
+          if (el.rating === 5) {
+            el.price = 3;
+          } else if (el.rating > 4) {
+            el.price = 2;
+          } else {
+            el.price = 1;
+          }
+
+          // Set dummy open
+          if (Math.random() > 0.5) {
+            el.open = true;
+          } else {
+            el.open = false;
+          }
+
+          // Set category
+          if (category !== "") {
+            el.category = category;
+          } else {
+            // Fetch category
+            try {
+              const categoryResponse = await axios.get(
+                `${process.env.REACT_APP_API_URL}/detail/${el.id}`
+              );
+              if (categoryResponse.data.restaurant) {
+                el.category =
+                  categoryResponse.data.restaurant.categories[0].name;
+                tempCategories.add(el.category);
+              } else {
+                el.category = "-";
+              }
+            } catch (error) {
+              console.error("Error fetching category:", error);
+            }
+          }
+
+          return el;
+        })
+      );
+
+      if (saveCategory) {
+        return { updatedRestaurants, tempCategories };
+      } else {
+        return updatedRestaurants;
+      }
+    } catch (error) {
+      console.error("Error updating restaurant details:", error);
+      return restaurants;
+    }
+  };
+
+  /* UseEffects */
+  // Initial fetch
   useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/list`)
+      .then(async (response) => {
+        if (response.data.restaurants) {
+          // Update restaurant details
+          const data = await setRestaurantDetails(
+            response.data.restaurants,
+            true
+          );
+
+          // Update states
+          setRestaurants(data.updatedRestaurants);
+          setShowedRestaurants(data.updatedRestaurants);
+          setCategories(data.tempCategories);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Filter by open now or price
+  // It is separated with category to reduce fetching API when category filter is not selected
+  useEffect(() => {
+    // Initialize new filtered restaurants
     let filteredRestaurants = restaurants;
 
+    // Check if filter by category needed or not
     if (category === "") {
-      if (filteredRestaurants.length > 0 && price !== 0) {
-        if (price === "1") {
-          filteredRestaurants = filteredRestaurants.filter((restaurant) => {
-            return restaurant.price === 1;
-          });
-        } else if (price === "2") {
-          filteredRestaurants = filteredRestaurants.filter((restaurant) => {
-            return restaurant.price === 2;
-          });
-        } else if (price === "3") {
-          filteredRestaurants = filteredRestaurants.filter((restaurant) => {
-            return restaurant.price === 3;
-          });
-        }
-      }
+      // Filter by price or open
+      filteredRestaurants = filterByPriceOrOpen(filteredRestaurants);
 
-      if (open) {
-        if (filteredRestaurants.length > 0) {
-          filteredRestaurants = filteredRestaurants.filter((restaurant) => {
-            return restaurant.open;
-          });
-        }
-      }
-
+      // Set new filtered restaurants
       setShowedRestaurants(filteredRestaurants);
     } else {
-      let filteredRestaurants = restaurants;
+      // Fetch by category
       axios
         .get(`${process.env.REACT_APP_API_URL}/search?q=${category}`)
         .then(async (response) => {
           if (response.data.restaurants) {
-            filteredRestaurants = await Promise.all(
-              response.data.restaurants.map(async (el) => {
-                // Set dummy price
-                if (el.rating === 5) {
-                  el.price = 3;
-                } else if (el.rating > 4) {
-                  el.price = 2;
-                } else {
-                  el.price = 1;
-                }
-
-                // Set dummy open
-                if (Math.random() > 0.5) {
-                  el.open = true;
-                } else {
-                  el.open = false;
-                }
-
-                // Set category
-                if (category !== "") {
-                  el.category = category;
-                } else {
-                  // Fetch category
-                  try {
-                    const categoryResponse = await axios.get(
-                      `${process.env.REACT_APP_API_URL}/detail/${el.id}`
-                    );
-                    if (categoryResponse.data.restaurant) {
-                      el.category =
-                        categoryResponse.data.restaurant.categories[0].name;
-                    } else {
-                      el.category = "-";
-                    }
-                  } catch (error) {
-                    console.error("Error fetching category:", error);
-                  }
-                }
-
-                return el;
-              })
+            // Update restaurant details
+            filteredRestaurants = await setRestaurantDetails(
+              response.data.restaurants
             );
 
-            if (filteredRestaurants.length > 0 && price !== 0) {
-              if (price === "1") {
-                filteredRestaurants = filteredRestaurants.filter(
-                  (restaurant) => {
-                    return restaurant.price === 1;
-                  }
-                );
-              } else if (price === "2") {
-                filteredRestaurants = filteredRestaurants.filter(
-                  (restaurant) => {
-                    return restaurant.price === 2;
-                  }
-                );
-              } else if (price === "3") {
-                filteredRestaurants = filteredRestaurants.filter(
-                  (restaurant) => {
-                    return restaurant.price === 3;
-                  }
-                );
-              }
-            }
+            // Filter by price or open
+            filteredRestaurants = filterByPriceOrOpen(filteredRestaurants);
 
-            if (open) {
-              filteredRestaurants = filteredRestaurants.filter((restaurant) => {
-                return restaurant.open;
-              });
-            }
-
+            // Set new filtered restaurants
             setShowedRestaurants(filteredRestaurants);
           }
         })
@@ -141,76 +180,25 @@ const Main = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, price]);
 
+  // Filter by category
   useEffect(() => {
+    // Initialize new filtered restaurants
     let filteredRestaurants = restaurants;
+
+    // Fetch by category
     axios
       .get(`${process.env.REACT_APP_API_URL}/search?q=${category}`)
       .then(async (response) => {
         if (response.data.restaurants) {
-          filteredRestaurants = await Promise.all(
-            response.data.restaurants.map(async (el) => {
-              // Set dummy price
-              if (el.rating === 5) {
-                el.price = 3;
-              } else if (el.rating > 4) {
-                el.price = 2;
-              } else {
-                el.price = 1;
-              }
-
-              // Set dummy open
-              if (Math.random() > 0.5) {
-                el.open = true;
-              } else {
-                el.open = false;
-              }
-
-              // Set category
-              if (category !== "") {
-                el.category = category;
-              } else {
-                // Fetch category
-                try {
-                  const categoryResponse = await axios.get(
-                    `${process.env.REACT_APP_API_URL}/detail/${el.id}`
-                  );
-                  if (categoryResponse.data.restaurant) {
-                    el.category =
-                      categoryResponse.data.restaurant.categories[0].name;
-                  } else {
-                    el.category = "-";
-                  }
-                } catch (error) {
-                  console.error("Error fetching category:", error);
-                }
-              }
-
-              return el;
-            })
+          // Update restaurant details
+          filteredRestaurants = await setRestaurantDetails(
+            response.data.restaurants
           );
 
-          if (filteredRestaurants.length > 0 && price !== 0) {
-            if (price === "1") {
-              filteredRestaurants = filteredRestaurants.filter((restaurant) => {
-                return restaurant.price === 1;
-              });
-            } else if (price === "2") {
-              filteredRestaurants = filteredRestaurants.filter((restaurant) => {
-                return restaurant.price === 2;
-              });
-            } else if (price === "3") {
-              filteredRestaurants = filteredRestaurants.filter((restaurant) => {
-                return restaurant.price === 3;
-              });
-            }
-          }
+          // Filter by price or open
+          filteredRestaurants = filterByPriceOrOpen(filteredRestaurants);
 
-          if (open) {
-            filteredRestaurants = filteredRestaurants.filter((restaurant) => {
-              return restaurant.open;
-            });
-          }
-
+          // Set new filtered restaurants
           setShowedRestaurants(filteredRestaurants);
         }
       })
@@ -219,60 +207,6 @@ const Main = () => {
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category]);
-
-  useEffect(() => {
-    let tempCategories = new Set();
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/list`)
-      .then(async (response) => {
-        if (response.data.restaurants) {
-          const updatedRestaurants = await Promise.all(
-            response.data.restaurants.map(async (el) => {
-              // Set dummy price
-              if (el.rating === 5) {
-                el.price = 3;
-              } else if (el.rating > 4) {
-                el.price = 2;
-              } else {
-                el.price = 1;
-              }
-
-              // Set dummy open
-              if (Math.random() > 0.5) {
-                el.open = true;
-              } else {
-                el.open = false;
-              }
-
-              // Fetch category
-              try {
-                const categoryResponse = await axios.get(
-                  `${process.env.REACT_APP_API_URL}/detail/${el.id}`
-                );
-                if (categoryResponse.data.restaurant) {
-                  el.category =
-                    categoryResponse.data.restaurant.categories[0].name;
-                  tempCategories.add(el.category);
-                } else {
-                  el.category = "-";
-                }
-              } catch (error) {
-                console.error("Error fetching category:", error);
-              }
-
-              return el;
-            })
-          );
-
-          setRestaurants(updatedRestaurants);
-          setShowedRestaurants(updatedRestaurants);
-          setCategories(tempCategories);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }, []);
 
   return (
     <>

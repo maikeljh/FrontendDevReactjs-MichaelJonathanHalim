@@ -6,12 +6,16 @@ import ReactStars from "react-stars";
 import Profile from "../assets/profile.png";
 
 const RestaurantDetail = () => {
-  const [detail, setDetail] = useState(null);
-  const [loadMore, setLoadMore] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  /* States */
+  const [detail, setDetail] = useState(null); // Detail object
+  const [loadMore, setLoadMore] = useState(false); // Boolean to load more or not
+  const [isLoading, setIsLoading] = useState(true); // Boolean to show loading animation while fetching data
 
+  /* Params */
   const { id } = useParams();
 
+  /* UseEffects */
+  // To fetch detail of a restaurant
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/detail/${id}`)

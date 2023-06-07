@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import ReactStars from "react-stars";
 
-const Card = ({ id, image, name, rating }) => {
+const Card = ({ id, image, name, rating, open, price }) => {
   return (
     <>
       <div className="flex flex-col">
@@ -18,10 +18,20 @@ const Card = ({ id, image, name, rating }) => {
         <div className="flex flex-row">
           <div className="flex flex-row">
             <span>Kategori</span>
-            <span className="mx-2">.</span>
-            <span>$$$</span>
+            <span className="mx-2">&#8226;</span>
+            <span>{"$".repeat(price)}</span>
           </div>
-          <div className="ml-auto">Open Now</div>
+          <div className="ml-auto">
+            {open ? (
+              <>
+                <span className="text-[green] mr-1">&#8226;</span>Open Now
+              </>
+            ) : (
+              <>
+                <span className="text-[red] mr-1">&#8226;</span>Closed
+              </>
+            )}
+          </div>
         </div>
         <Link
           className="w-full bg-gray-800 text-white p-2 mt-4 text-center"

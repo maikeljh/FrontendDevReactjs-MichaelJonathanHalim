@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Oval } from "react-loader-spinner";
 import { Link, useParams } from "react-router-dom";
 import ReactStars from "react-stars";
+import Profile from "../assets/profile.png";
 
 const RestaurantDetail = () => {
   const [detail, setDetail] = useState(null);
@@ -66,15 +67,22 @@ const RestaurantDetail = () => {
             />
           </span>
           <h3 className="text-2xl mx-auto font-semibold mt-2">Reviews</h3>
-          {loadMore ? (
+          {loadMore || detail?.customerReviews.length <= 3 ? (
             <div className="flex flex-col gap-4 max-w-2xl w-full">
               {detail?.customerReviews.map((el, idx) => (
                 <div
-                  className="flex flex-col gap-2 bg-gray-800 p-4 rounded-xl text-white"
+                  className="flex flex-col gap-4 bg-gray-800 p-4 rounded-xl text-white"
                   key={idx}
                 >
-                  <div className="flex flex-row">
-                    <span className="font-bold">{el.name}</span>
+                  <div className="flex flex-row items-center">
+                    <div className="flex flex-row items-center gap-3">
+                      <img
+                        src={Profile}
+                        alt="profile"
+                        className="w-[2rem] rounded-xl"
+                      />
+                      <span className="font-bold">{el.name}</span>
+                    </div>
                     <span className="ml-auto font-semibold">{el.date}</span>
                   </div>
                   <p>{el.review}</p>
@@ -86,11 +94,18 @@ const RestaurantDetail = () => {
               <div className="flex flex-col gap-4 max-w-2xl w-full">
                 {detail?.customerReviews.slice(0, 3).map((el, idx) => (
                   <div
-                    className="flex flex-col gap-2 bg-gray-800 p-4 rounded-xl text-white"
+                    className="flex flex-col gap-4 bg-gray-800 p-4 rounded-xl text-white"
                     key={idx}
                   >
-                    <div className="flex flex-row">
-                      <span className="font-bold">{el.name}</span>
+                    <div className="flex flex-row items-center">
+                      <div className="flex flex-row items-center gap-3">
+                        <img
+                          src={Profile}
+                          alt="profile"
+                          className="w-[2rem] rounded-xl"
+                        />
+                        <span className="font-bold">{el.name}</span>
+                      </div>
                       <span className="ml-auto font-semibold">{el.date}</span>
                     </div>
                     <p>{el.review}</p>

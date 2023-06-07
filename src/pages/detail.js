@@ -56,7 +56,7 @@ const RestaurantDetail = () => {
           <img
             alt="restaurant"
             src={`https://restaurant-api.dicoding.dev/images/large/${detail?.pictureId}`}
-            className="max-w-[30rem] mx-auto"
+            className="sm:max-w-[30rem] mx-auto"
           />
           <h2 className="font-bold text-3xl mx-auto">{detail?.name}</h2>
           <span className="flex flex-row items-center gap-2 text-xl font-semibold mx-auto">
@@ -78,7 +78,7 @@ const RestaurantDetail = () => {
                   className="flex flex-col gap-4 bg-gray-800 p-4 rounded-xl text-white"
                   key={idx}
                 >
-                  <div className="flex flex-row items-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
                     <div className="flex flex-row items-center gap-3">
                       <img
                         src={Profile}
@@ -87,7 +87,7 @@ const RestaurantDetail = () => {
                       />
                       <span className="font-bold">{el.name}</span>
                     </div>
-                    <span className="ml-auto font-semibold">{el.date}</span>
+                    <span className="sm:ml-auto font-semibold">{el.date}</span>
                   </div>
                   <p>{el.review}</p>
                 </div>
@@ -101,7 +101,7 @@ const RestaurantDetail = () => {
                     className="flex flex-col gap-4 bg-gray-800 p-4 rounded-xl text-white"
                     key={idx}
                   >
-                    <div className="flex flex-row items-center">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
                       <div className="flex flex-row items-center gap-3">
                         <img
                           src={Profile}
@@ -110,14 +110,16 @@ const RestaurantDetail = () => {
                         />
                         <span className="font-bold">{el.name}</span>
                       </div>
-                      <span className="ml-auto font-semibold">{el.date}</span>
+                      <span className="sm:ml-auto font-semibold">
+                        {el.date}
+                      </span>
                     </div>
                     <p>{el.review}</p>
                   </div>
                 ))}
               </div>
               <button
-                className="border-2 border-gray-800 w-1/3 py-2 mx-auto mt-4"
+                className="border-2 border-gray-800 w-full sm:w-1/3 py-2 mx-auto mt-4"
                 onClick={() => setLoadMore(true)}
               >
                 Load More

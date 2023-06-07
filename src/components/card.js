@@ -5,7 +5,11 @@ const Card = ({ id, image, name, rating, open, price, category }) => {
   return (
     <>
       <div className="flex flex-col">
-        <img alt="restaurant" src={image} className="h-[12rem]" />
+        <img
+          alt="restaurant"
+          src={image}
+          className="sm:h-[14rem] md:h-[12rem] lg:min-h-[12rem] lg:h-[14rem] xl:h-[16rem]"
+        />
         <h2 className="font-semibold text-lg mt-2">{name}</h2>
         <ReactStars
           count={5}

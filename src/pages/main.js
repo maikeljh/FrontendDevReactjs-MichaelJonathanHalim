@@ -211,8 +211,8 @@ const Main = () => {
   return (
     <>
       <Header title={headerContent.title} content={headerContent.content} />
-      <div className="flex flex-row border-t-2 border-b-2 py-3 px-8">
-        <div className="flex flex-row gap-6 items-center">
+      <div className="flex flex-col md:flex-row border-t-2 border-b-2 py-3 px-8 gap-8 md:gap-0">
+        <div className="flex flex-col md:flex-row gap-6 items-center">
           <span>Filter By:</span>
           <div className="flex flex-row items-center gap-2 border-b-2">
             <input
@@ -250,7 +250,7 @@ const Main = () => {
             </select>
           </div>
         </div>
-        <div className="ml-auto">
+        <div className="mx-auto md:mx-0 md:ml-auto">
           <button className="p-2 border-2" onClick={() => resetFilter()}>
             Clear All
           </button>
@@ -259,7 +259,7 @@ const Main = () => {
       <div className="flex flex-col gap-8">
         <h1 className="text-2xl">All Restaurants</h1>
         {loadMore || showedRestaurants.length <= 8 ? (
-          <div className="grid grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {showedRestaurants.map((el, idx) => (
               <Card
                 key={idx}
@@ -275,7 +275,7 @@ const Main = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {showedRestaurants.slice(0, 8).map((el, idx) => (
                 <Card
                   key={idx}
@@ -290,7 +290,7 @@ const Main = () => {
               ))}
             </div>
             <button
-              className="border-2 border-gray-800 w-1/3 py-2 mx-auto"
+              className="border-2 border-gray-800 w-full sm:w-1/3 py-2 mx-auto"
               onClick={() => setLoadMore(true)}
             >
               Load More

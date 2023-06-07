@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import ReactStars from "react-stars";
 
-const Card = ({ id, image, name, rating, open, price }) => {
+const Card = ({ id, image, name, rating, open, price, category }) => {
   return (
     <>
       <div className="flex flex-col">
@@ -17,7 +17,7 @@ const Card = ({ id, image, name, rating, open, price }) => {
         />
         <div className="flex flex-row">
           <div className="flex flex-row">
-            <span>Kategori</span>
+            <span>{category}</span>
             <span className="mx-2">&#8226;</span>
             <span>{"$".repeat(price)}</span>
           </div>
